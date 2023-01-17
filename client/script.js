@@ -10,14 +10,12 @@ function loader(element) {
     element.textContent = '';
 
     loadInterval = setInterval(() => {
-        // Update the text content of the loading indicator
         element.textContent += '.';
 
-        // If the loading indicator has reached three dots, reset it
         if (element.textContent === '....') {
             element.textContent = '';
         }
-    }, 300);
+    }, 300)
 }
 
 function typeText(element, text) {
@@ -30,12 +28,9 @@ function typeText(element, text) {
         } else {
             clearInterval(interval);
         }
-    }, 20);
+    }, 20)
 }
 
-// generate unique ID for each message div of bot
-// necessary for typing text effect for that specific reply
-// without unique ID, typing text will work on every element
 function generateUniqueId() {
     const timestamp = Date.now();
     const randomNumber = Math.random();
@@ -63,35 +58,33 @@ function chatStripe(isAi, value, uniqueId) {
 }
 
 const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault()
 
-    const data = new FormData(form);
+    const data = new FormData(form)
 
     // user's chatstripe
-    chatContainer.innerHTML += chatStripe(false, data.get('prompt'));
+    chatContainer.innerHTML += chatStripe(false, data.get('prompt'))
 
     // to clear the textarea input 
-    form.reset();
+    form.reset()
 
     // bot's chatstripe
     const uniqueId = generateUniqueId();
-    chatContainer.innerHTML += chatStripe(true, " ", uniqueId);
+    chatContainer.innerHTML += chatStripe(true, " ", uniqueId)
 
     // to focus scroll to the bottom 
     chatContainer.scrollTop = chatContainer.scrollHeight;
 
     // specific message div 
-    const messageDiv = document.getElementById(uniqueId);
+    const messageDiv = document.getElementById(uniqueId)
 
     // messageDiv.innerHTML = "..."
     loader(messageDiv);
 
-    // fetch data from server -> bot's response
-
-    const response = await fetch('https://mycodexai.onrender.com/', {
+    const response = await fetch('https://localhost:5000/', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
         },
         body: JSON.stringify({
             prompt: data.get('prompt')
@@ -99,13 +92,14 @@ const handleSubmit = async (e) => {
     })
 
     clearInterval(loadInterval)
-    messageDiv.innerHTML = " ";
+    messageDiv.innerHTML = '';
 
     if (response.ok) {
         const data = await response.json();
-        const parsedData = data.bot.trim() // trims any trailing spaces/'\n' 
+        const parsedData = data.bot.trim(); 
+
+        console.log({parsedData})
        
-    
         typeText(messageDiv, parsedData);
     } else {
         const err = await response.text();
@@ -115,7 +109,7 @@ const handleSubmit = async (e) => {
     }
 }
 
-form.addEventListener('submit', handleSubmit);
+form.addEventListener('submit', handleSubmit)
 form.addEventListener('keyup', (e) => {
     if (e.keyCode === 13) {
         handleSubmit(e);
